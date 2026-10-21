@@ -1,0 +1,335 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="TodoListApp.MainPage"
+    Title="My Tasks"
+    BackgroundColor="{DynamicResource PageBg}">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <!-- Light defaults. Code-behind swaps these when the theme changes. -->
+            <Color x:Key="PageBg">#F4F7F5</Color>
+            <Color x:Key="CardBg">#FFFFFF</Color>
+            <Color x:Key="FieldBg">#F1F5F3</Color>
+            <Color x:Key="TextMain">#17211B</Color>
+            <Color x:Key="TextMuted">#718078</Color>
+            <Color x:Key="LineColor">#E3EAE6</Color>
+            <Color x:Key="PrimaryColor">#16834A</Color>
+
+            <Style x:Key="IconStyle" TargetType="Label">
+                <Setter Property="FontFamily" Value="MaterialIcons" />
+                <Setter Property="FontSize" Value="22" />
+                <Setter Property="HorizontalTextAlignment" Value="Center" />
+                <Setter Property="VerticalTextAlignment" Value="Center" />
+            </Style>
+
+            <Style x:Key="ChipStyle" TargetType="Button">
+                <Setter Property="CornerRadius" Value="20" />
+                <Setter Property="HeightRequest" Value="38" />
+                <Setter Property="Padding" Value="18,0" />
+                <Setter Property="FontSize" Value="13" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="BorderWidth" Value="0" />
+                <Setter Property="MinimumWidthRequest" Value="0" />
+            </Style>
+
+            <Style x:Key="StatCardStyle" TargetType="Border">
+                <Setter Property="BackgroundColor" Value="#26FFFFFF" />
+                <Setter Property="StrokeThickness" Value="0" />
+                <Setter Property="Padding" Value="10,12" />
+                <Setter Property="StrokeShape">
+                    <Setter.Value>
+                        <RoundRectangle CornerRadius="18" />
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style x:Key="StatValueStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="24" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="HorizontalTextAlignment" Value="Center" />
+            </Style>
+
+            <Style x:Key="StatCaptionStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="11" />
+                <Setter Property="TextColor" Value="#CCFFFFFF" />
+                <Setter Property="HorizontalTextAlignment" Value="Center" />
+            </Style>
+
+            <Style x:Key="FieldBorderStyle" TargetType="Border">
+                <Setter Property="BackgroundColor" Value="{DynamicResource FieldBg}" />
+                <Setter Property="StrokeThickness" Value="0" />
+                <Setter Property="Padding" Value="10,0" />
+                <Setter Property="StrokeShape">
+                    <Setter.Value>
+                        <RoundRectangle CornerRadius="16" />
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style x:Key="FieldCaptionStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="TextColor" Value="{DynamicResource TextMuted}" />
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid>
+        <ScrollView x:Name="MainScroll">
+            <VerticalStackLayout Spacing="0" Padding="0,0,0,120">
+
+                <!-- Gradient header -->
+                <Border x:Name="HeaderBorder" StrokeThickness="0" Padding="22,28,22,26">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="0,0,36,36" />
+                    </Border.StrokeShape>
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#1FA05C" Offset="0.0" />
+                            <GradientStop Color="#0A4F2D" Offset="1.0" />
+                        </LinearGradientBrush>
+                    </Border.Background>
+
+                    <Grid>
+                        <Ellipse WidthRequest="190" HeightRequest="190" Fill="#14FFFFFF"
+                                 HorizontalOptions="End" VerticalOptions="Start"
+                                 TranslationX="70" TranslationY="-90" />
+                        <Ellipse WidthRequest="110" HeightRequest="110" Fill="#0FFFFFFF"
+                                 HorizontalOptions="Start" VerticalOptions="End"
+                                 TranslationX="-50" TranslationY="60" />
+
+                        <VerticalStackLayout Spacing="20">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <VerticalStackLayout Spacing="2">
+                                    <Label x:Name="GreetingLabel" Text="Hello" FontSize="14" TextColor="#D9FFFFFF" />
+                                    <Label Text="My Tasks" FontSize="32" FontAttributes="Bold" TextColor="White" />
+                                    <Label x:Name="TodaySummaryLabel" Text="" FontSize="13" TextColor="#E6FFFFFF" />
+                                </VerticalStackLayout>
+                                <Border x:Name="ThemeToggle" Grid.Column="1" WidthRequest="46" HeightRequest="46"
+                                        BackgroundColor="#33FFFFFF" StrokeThickness="0" VerticalOptions="Start">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="23" />
+                                    </Border.StrokeShape>
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnThemeToggleTapped" />
+                                    </Border.GestureRecognizers>
+                                    <Label x:Name="ThemeIcon" Text="&#xe51c;" Style="{StaticResource IconStyle}"
+                                           TextColor="White" />
+                                </Border>
+                            </Grid>
+
+                            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                                <Border Grid.Column="0" Style="{StaticResource StatCardStyle}">
+                                    <VerticalStackLayout Spacing="2">
+                                        <Label x:Name="TotalTasksLabel" Text="0" Style="{StaticResource StatValueStyle}" />
+                                        <Label Text="Total" Style="{StaticResource StatCaptionStyle}" />
+                                    </VerticalStackLayout>
+                                </Border>
+                                <Border Grid.Column="1" Style="{StaticResource StatCardStyle}">
+                                    <VerticalStackLayout Spacing="2">
+                                        <Label x:Name="PendingTasksLabel" Text="0" Style="{StaticResource StatValueStyle}" />
+                                        <Label Text="Pending" Style="{StaticResource StatCaptionStyle}" />
+                                    </VerticalStackLayout>
+                                </Border>
+                                <Border Grid.Column="2" Style="{StaticResource StatCardStyle}">
+                                    <VerticalStackLayout Spacing="2">
+                                        <Label x:Name="CompletedTasksLabel" Text="0" Style="{StaticResource StatValueStyle}" />
+                                        <Label Text="Done" Style="{StaticResource StatCaptionStyle}" />
+                                    </VerticalStackLayout>
+                                </Border>
+                            </Grid>
+
+                            <VerticalStackLayout Spacing="8">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Label x:Name="ProgressSummaryLabel" Text="0 of 0 tasks completed"
+                                           FontSize="13" TextColor="#E6FFFFFF" />
+                                    <Label x:Name="ProgressPercentageLabel" Grid.Column="1" Text="0%"
+                                           FontSize="14" FontAttributes="Bold" TextColor="White" />
+                                </Grid>
+                                <ProgressBar x:Name="TaskProgressBar" Progress="0" ProgressColor="White"
+                                             BackgroundColor="#40FFFFFF" HeightRequest="8" />
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+
+                <!-- Search + filters + list -->
+                <VerticalStackLayout Padding="20,18,20,0" Spacing="14">
+
+                    <Border BackgroundColor="{DynamicResource CardBg}"
+                            StrokeThickness="0" Padding="16,0">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="28" />
+                        </Border.StrokeShape>
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                            <Label Text="&#xe8b6;" Style="{StaticResource IconStyle}" FontSize="20"
+                                   TextColor="{DynamicResource TextMuted}" />
+                            <Entry x:Name="SearchEntry" Grid.Column="1" Placeholder="Search your tasks"
+                                   FontSize="15" HeightRequest="50"
+                                   TextColor="{DynamicResource TextMain}"
+                                   PlaceholderColor="{DynamicResource TextMuted}"
+                                   ClearButtonVisibility="WhileEditing" />
+                        </Grid>
+                    </Border>
+
+                    <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Never">
+                        <HorizontalStackLayout Spacing="8">
+                            <Button x:Name="AllTasksButton" Text="All" Clicked="OnAllTasksClicked"
+                                    Style="{StaticResource ChipStyle}" />
+                            <Button x:Name="PendingTasksButton" Text="Pending" Clicked="OnPendingTasksClicked"
+                                    Style="{StaticResource ChipStyle}" />
+                            <Button x:Name="CompletedTasksButton" Text="Completed" Clicked="OnCompletedTasksClicked"
+                                    Style="{StaticResource ChipStyle}" />
+                            <BoxView WidthRequest="1" HeightRequest="22" Color="{DynamicResource LineColor}"
+                                     VerticalOptions="Center" />
+                            <Button x:Name="TodayTasksButton" Text="Today" Clicked="OnTodayTasksClicked"
+                                    Style="{StaticResource ChipStyle}" />
+                            <Button x:Name="UpcomingTasksButton" Text="Upcoming" Clicked="OnUpcomingTasksClicked"
+                                    Style="{StaticResource ChipStyle}" />
+                            <Button x:Name="OverdueTasksButton" Text="Overdue" Clicked="OnOverdueTasksClicked"
+                                    Style="{StaticResource ChipStyle}" />
+                        </HorizontalStackLayout>
+                    </ScrollView>
+
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                        <Label Text="Your tasks" FontSize="20" FontAttributes="Bold"
+                               TextColor="{DynamicResource TextMain}" VerticalOptions="Center" />
+                        <Border Grid.Column="1" BackgroundColor="{DynamicResource CardBg}"
+                                StrokeThickness="0" Padding="12,0" WidthRequest="150">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="16" />
+                            </Border.StrokeShape>
+                            <Picker x:Name="SortPicker" Title="Sort by" SelectedIndex="0" FontSize="13"
+                                    TextColor="{DynamicResource TextMain}"
+                                    TitleColor="{DynamicResource TextMuted}">
+                                <Picker.Items>
+                                    <x:String>Default</x:String>
+                                    <x:String>Priority</x:String>
+                                    <x:String>Due Date</x:String>
+                                </Picker.Items>
+                            </Picker>
+                        </Border>
+                    </Grid>
+
+                    <VerticalStackLayout x:Name="TaskList" Spacing="12" />
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Extended FAB -->
+        <Border x:Name="FabButton" HeightRequest="58" Padding="22,0" StrokeThickness="0"
+                HorizontalOptions="End" VerticalOptions="End" Margin="0,0,20,24"
+                Background="#16834A">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="29" />
+            </Border.StrokeShape>
+            <Border.Shadow>
+                <Shadow Brush="#16834A" Offset="0,6" Radius="14" Opacity="0.45" />
+            </Border.Shadow>
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnFabTapped" />
+            </Border.GestureRecognizers>
+            <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                <Label Text="&#xe145;" Style="{StaticResource IconStyle}" TextColor="White" />
+                <Label Text="New task" FontSize="15" FontAttributes="Bold" TextColor="White"
+                       VerticalOptions="Center" />
+            </HorizontalStackLayout>
+        </Border>
+
+        <!-- Add / edit bottom sheet -->
+        <Grid x:Name="FormOverlay" IsVisible="False">
+            <BoxView Color="#99000000">
+                <BoxView.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnCloseFormTapped" />
+                </BoxView.GestureRecognizers>
+            </BoxView>
+
+            <Border VerticalOptions="End" BackgroundColor="{DynamicResource CardBg}"
+                    StrokeThickness="0" Padding="22,12,22,28">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="30,30,0,0" />
+                </Border.StrokeShape>
+                <VerticalStackLayout Spacing="14">
+                    <BoxView WidthRequest="44" HeightRequest="5" CornerRadius="3"
+                             Color="{DynamicResource LineColor}" HorizontalOptions="Center" />
+                    <Label x:Name="FormTitleLabel" Text="New task" FontSize="22" FontAttributes="Bold"
+                           TextColor="{DynamicResource TextMain}" />
+
+                    <Border Style="{StaticResource FieldBorderStyle}" Padding="14,0">
+                        <Entry x:Name="TaskEntry" Placeholder="What do you need to do?"
+                               FontSize="16" HeightRequest="52" MaxLength="200"
+                               TextColor="{DynamicResource TextMain}"
+                               PlaceholderColor="{DynamicResource TextMuted}"
+                               ClearButtonVisibility="WhileEditing" />
+                    </Border>
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="Priority" Style="{StaticResource FieldCaptionStyle}" />
+                            <Border Style="{StaticResource FieldBorderStyle}">
+                                <Picker x:Name="PriorityPicker" Title="Select priority" SelectedIndex="1"
+                                        TextColor="{DynamicResource TextMain}"
+                                        TitleColor="{DynamicResource TextMuted}">
+                                    <Picker.Items>
+                                        <x:String>Low</x:String>
+                                        <x:String>Medium</x:String>
+                                        <x:String>High</x:String>
+                                    </Picker.Items>
+                                </Picker>
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Grid.Column="1" Spacing="6">
+                            <Label Text="Due date" Style="{StaticResource FieldCaptionStyle}" />
+                            <Border Style="{StaticResource FieldBorderStyle}">
+                                <DatePicker x:Name="DueDatePicker" Format="dd MMM yyyy"
+                                            MinimumDate="2020-01-01"
+                                            TextColor="{DynamicResource TextMain}" />
+                            </Border>
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <Grid x:Name="ReminderSection" ColumnDefinitions="*,*" ColumnSpacing="12">
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="Remind at" Style="{StaticResource FieldCaptionStyle}" />
+                            <Border Style="{StaticResource FieldBorderStyle}">
+                                <TimePicker x:Name="ReminderTimePicker" Format="hh:mm tt"
+                                            TextColor="{DynamicResource TextMain}" />
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Grid.Column="1" Spacing="6">
+                            <Label Text="Repeat" Style="{StaticResource FieldCaptionStyle}" />
+                            <Border Style="{StaticResource FieldBorderStyle}">
+                                <Picker x:Name="RepeatPicker" Title="Repeat" SelectedIndex="0"
+                                        TextColor="{DynamicResource TextMain}"
+                                        TitleColor="{DynamicResource TextMuted}">
+                                    <Picker.Items>
+                                        <x:String>Once</x:String>
+                                        <x:String>Every 1 hour</x:String>
+                                        <x:String>Every 2 hours</x:String>
+                                        <x:String>Every 3 hours</x:String>
+                                        <x:String>Every 4 hours</x:String>
+                                    </Picker.Items>
+                                </Picker>
+                            </Border>
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <Grid ColumnDefinitions="*,2*" ColumnSpacing="10">
+                        <Button x:Name="ClearDueDateButton" Text="No date"
+                                BackgroundColor="{DynamicResource FieldBg}" TextColor="{DynamicResource TextMuted}"
+                                CornerRadius="26" HeightRequest="52" FontSize="14" FontAttributes="Bold" />
+                        <Button x:Name="AddTaskButton" Grid.Column="1" Text="Add task"
+                                BackgroundColor="{DynamicResource PrimaryColor}" TextColor="White"
+                                CornerRadius="26" HeightRequest="52" FontSize="15" FontAttributes="Bold"
+                                Clicked="OnAddTaskClicked" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+    </Grid>
+</ContentPage>
